@@ -1,0 +1,45 @@
+# Release pipeline: pushing a v* tag builds the verified package,
+# creates the GitHub Release with checksummed assets, and publishes to the
+# PowerShell Gallery when the PSGALLERY_API_KEY secret is configured.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install development modules
+        shell: pwsh
+        run: Install-Module -Name Pester, PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Quality gate
+        shell: pwsh
+        run: ./tools/Invoke-QualityChecks.ps1
+
+      - name: Build package
+        shell: pwsh
+        run: ./Build.ps1 -Package
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME `
+            (Get-ChildItem dist/*.zip).FullName dist/checksums.txt `
+            --title "Lamfa $env:GITHUB_REF_NAME" --generate-notes
+
+      - name: Publish to PowerShell Gallery
+        if: ${{ vars.PUBLISH_TO_GALLERY == 'true' }}
+        shell: pwsh
+        env:
+          PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+        run: ./tools/Publish-Lamfa.ps1 -ApiKey $env:PSGALLERY_API_KEY

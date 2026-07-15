@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "beginnerMode": true,
+  "activeRepositoryId": null,
+  "workspaceRoots": [],
+  "repositories": [],
+  "preferences": {
+    "openEditorCommand": "code",
+    "fetchFreshnessMinutes": 15,
+    "showCommandsBeforeExecution": true,
+    "pauseAfterErrors": true
+  }
+}

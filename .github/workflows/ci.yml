@@ -1,0 +1,53 @@
+# Lamfa CI: analysis, tests, package build.
+# Offline-safe: no production credentials, no network-dependent tests.
+# Windows only: the primary platform, and the cheapest gate that still
+# proves every release artifact.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  quality:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install development modules
+        shell: pwsh
+        run: Install-Module -Name Pester, PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Quality checks (PSScriptAnalyzer + Pester)
+        shell: pwsh
+        run: ./tools/Invoke-QualityChecks.ps1
+
+      - name: Entry point self-test
+        shell: pwsh
+        run: ./Lamfa.ps1 -SelfTest
+
+      - name: Build single-file script and portable ZIP
+        shell: pwsh
+        run: ./Build.ps1 -Package
+
+      - name: Verify checksums
+        shell: pwsh
+        run: |
+          $entries = Get-Content dist/checksums.txt
+          foreach ($entry in $entries) {
+            $hash, $file = $entry -split '\s+', 2
+            $actual = (Get-FileHash -Path (Join-Path dist $file.Trim()) -Algorithm SHA256).Hash
+            if ($actual -ne $hash) { throw "Checksum mismatch for $file" }
+          }
+          Write-Host 'Checksums verified.'
+
+      - name: Package self-test
+        shell: pwsh
+        run: ./dist/Lamfa.ps1 -SelfTest
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lamfa-dist
+          path: dist/

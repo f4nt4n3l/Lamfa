@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "repository": {
+    "preferredRemote": "origin",
+    "defaultBranch": null,
+    "integrationBranch": null,
+    "releaseBranch": null
+  },
+  "project": {
+    "type": null,
+    "versionFile": null
+  },
+  "commands": {},
+  "docker": {
+    "dockerfile": "Dockerfile",
+    "composeFiles": [],
+    "image": null,
+    "registry": null
+  },
+  "workflows": {}
+}

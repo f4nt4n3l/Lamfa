@@ -1,0 +1,29 @@
+name: Bug report
+description: Something behaved wrongly or unsafely
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Lamfa version
+      description: Shown in the dashboard header, or run 'lamfa doctor'
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: 1. lamfa ... 2. choose ... 3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of 'lamfa doctor'
+      render: text

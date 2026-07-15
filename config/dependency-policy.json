@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "comment": "Capability detection is preferred over exact version checks; these are reporting references, not hard minimums (PowerShell excepted). Install ids are best-known winget ids; verify with winget search before relying on an id in a new environment.",
+  "runtime": {
+    "powershell": {
+      "minimumMajor": 7,
+      "targetVersion": "7.6",
+      "verifiedBaseline": "7.6.3"
+    }
+  },
+  "tools": [
+    {
+      "name": "Git",
+      "executable": "git",
+      "required": true,
+      "verifiedBaseline": "2.55.0.2"
+    },
+    {
+      "name": "GitHub CLI",
+      "executable": "gh",
+      "required": false,
+      "verifiedBaseline": "2.96.0"
+    },
+    {
+      "name": "Docker CLI",
+      "executable": "docker",
+      "required": false,
+      "verifiedBaseline": "29.6.1"
+    }
+  ],
+  "developmentModules": [
+    {
+      "name": "Pester",
+      "verifiedBaseline": "6.0.0"
+    },
+    {
+      "name": "PSScriptAnalyzer",
+      "verifiedBaseline": "1.25.0"
+    }
+  ],
+  "install": {
+    "git": {
+      "winget": "Git.Git"
+    },
+    "gh": {
+      "winget": "GitHub.cli"
+    },
+    "glab": {
+      "winget": "GLab.GLab"
+    },
+    "tea": {
+      "winget": "GiteaLtd.tea"
+    },
+    "docker": {
+      "winget": "Docker.DockerDesktop"
+    },
+    "git-lfs": {
+      "winget": "GitHub.GitLFS"
+    },
+    "Microsoft.PowerShell.SecretManagement": {
+      "module": "Microsoft.PowerShell.SecretManagement"
+    },
+    "Microsoft.PowerShell.SecretStore": {
+      "module": "Microsoft.PowerShell.SecretStore"
+    },
+    "PwshSpectreConsole": {
+      "module": "PwshSpectreConsole"
+    }
+  }
+}

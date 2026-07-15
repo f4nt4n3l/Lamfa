@@ -1,0 +1,10 @@
+# Generated distribution - rebuilt by Build.ps1, never edited or committed.
+# (CI publishes dist/ as an artifact.)
+dist/
+
+# Test and tooling output
+TestResults/
+*.log
+
+# Per-developer AI-agent state / handoff notes (never published)
+.claude/
