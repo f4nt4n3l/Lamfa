@@ -105,7 +105,7 @@ foreach ($file in $moduleFiles) {
         # In the single file everything shares one scope: module plumbing lines
         # (exports and intra-package imports) are dropped.
         if ($line -match '^\s*Export-ModuleMember') { continue }
-        if ($line -match '^\s*Import-Module\s+-Name\s+\(Join-Path \$repoRoot') { continue }
+        if ($line -match '^\s*Import-Module\s+-Name\s+\(Join-Path \$PSScriptRoot') { continue }
         [void]$bodyBuilder.AppendLine($line)
     }
     [void]$bodyBuilder.AppendLine("# --- end $relative ---")
