@@ -34,7 +34,11 @@ function Show-DockerMenu {
         Lamfa-WriteMessage -Level Warning -Text $status.Message
         return
     }
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Docker')
         $status = Get-DockerStatus
         Write-Host ''
         Write-Host "DOCKER  (context: $($status.CurrentContext), client $($status.ClientVersion), server $($status.ServerVersion))" -ForegroundColor Cyan
@@ -129,7 +133,11 @@ function Show-ReleaseMenu {
     )
     if (-not (Test-MenuContext $Context)) { return }
     $resolved = Lamfa-GetProfile -RepositoryPath $Context.Path -RepositoryName $Context.Name
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Release')
         Write-Host ''
         Write-Host 'RELEASE' -ForegroundColor Cyan
         $existing = Lamfa-GetReleaseState -RepositoryId $Context.Id

@@ -123,6 +123,56 @@ function Lamfa-WriteBlocked {
 }
 
 
+$script:LamfaStatusBarLines = @()
+
+function Lamfa-SetStatusBar {
+    <#
+    .SYNOPSIS
+        Stores the session-state lines (active repository, accounts, mode)
+        that Lamfa-ShowScreen draws at the top of every screen. Set by the
+        main loop each iteration.
+    #>
+    [CmdletBinding()]
+    param([Parameter()][AllowEmptyCollection()][string[]]$Lines = @())
+    $script:LamfaStatusBarLines = @($Lines)
+}
+
+function Lamfa-ShowScreen {
+    <#
+    .SYNOPSIS
+        Starts a fresh screen: clears the console and draws the persistent
+        status bar plus the breadcrumb. Menus call this at the top of every
+        loop iteration so the session state stays in view instead of
+        scrolling away. The console is not cleared when output is redirected
+        (tests, CI logs) - there the screen degrades to plain append.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string[]]$Breadcrumb)
+    if (-not [Console]::IsOutputRedirected) { Clear-Host }
+    foreach ($line in $script:LamfaStatusBarLines) {
+        Write-Host (' ' + $line) -ForegroundColor DarkCyan
+    }
+    if (@($script:LamfaStatusBarLines).Count -gt 0) {
+        Write-Host (' ' + ('-' * 56)) -ForegroundColor DarkGray
+    }
+    Write-Host (' ' + ($Breadcrumb -join ' > ')) -ForegroundColor Cyan
+}
+
+function Lamfa-PauseForReview {
+    <#
+    .SYNOPSIS
+        Holds the last action's output on screen until a key is pressed -
+        the next loop iteration clears the console. No-op when input is
+        redirected (tests, dumb terminals).
+    #>
+    [CmdletBinding()]
+    param()
+    if ([Console]::IsInputRedirected) { return }
+    Write-Host ''
+    Write-Host ' Press any key to return to the menu...' -ForegroundColor DarkGray
+    $null = [Console]::ReadKey($true)
+}
+
 function Lamfa-ReadMenuKey {
     <#
     .SYNOPSIS
@@ -219,4 +269,4 @@ function Lamfa-SelectMenuChoice {
     }
 }
 
-Export-ModuleMember -Function Lamfa-WriteHeader, Lamfa-WriteKeyValue, Lamfa-WriteMessage, Lamfa-WriteActionPreview, Lamfa-WriteBlocked, Lamfa-ReadMenuKey, Lamfa-SelectMenuChoice
+Export-ModuleMember -Function Lamfa-WriteHeader, Lamfa-WriteKeyValue, Lamfa-WriteMessage, Lamfa-WriteActionPreview, Lamfa-WriteBlocked, Lamfa-ReadMenuKey, Lamfa-SelectMenuChoice, Lamfa-SetStatusBar, Lamfa-ShowScreen, Lamfa-PauseForReview

@@ -73,3 +73,24 @@ Describe 'lamfa CLI dispatcher' {
         { Lamfa -Command 'nonsense' 6>&1 | Out-Null } | Should -Not -Throw
     }
 }
+
+Describe 'Persistent status bar' {
+    It 'composes repository and account lines' {
+        Mock Get-GitHubAuthStatus -ModuleName MainMenu { [pscustomobject]@{ Accounts = @([pscustomobject]@{ HostName = 'github.com'; Account = 'tester'; Active = $true }) } }
+        $ctx = [pscustomobject]@{ Name = 'demo'; CurrentBranch = 'main'; IsDetachedHead = $false; WorkingTreeState = 'Clean'; AheadCount = 1; BehindCount = 0 }
+        $docker = [pscustomobject]@{ DaemonRunning = $true; CurrentContext = 'default' }
+        $lines = Lamfa-BuildStatusBar -Context $ctx -DockerStatus $docker -BeginnerMode $true
+        $lines[0] | Should -Match 'demo @ main'
+        $lines[0] | Should -Match 'ahead 1 / behind 0'
+        $lines[1] | Should -Match 'GitHub: tester'
+        $lines[1] | Should -Match 'Docker: default'
+        $lines[1] | Should -Match 'Mode: Beginner'
+    }
+    It 'reports the empty session honestly' {
+        Mock Get-GitHubAuthStatus -ModuleName MainMenu { [pscustomobject]@{ Accounts = @() } }
+        $lines = Lamfa-BuildStatusBar -Context $null -BeginnerMode $false
+        $lines[0] | Should -Be 'no active repository'
+        $lines[1] | Should -Match 'GitHub: not logged in'
+        $lines[1] | Should -Match 'Mode: Advanced'
+    }
+}

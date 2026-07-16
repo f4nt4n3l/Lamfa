@@ -33,7 +33,11 @@ function Show-GitStatusMenu {
     [CmdletBinding()]
     param([Parameter()][AllowNull()][object]$Context)
     if (-not (Test-MenuContext $Context)) { return }
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Git status')
         $status = Get-GitStatus -Path $Context.Path
         Write-Host ''
         Write-Host "STATUS - $($Context.Name) on $($status.Branch)" -ForegroundColor Cyan
@@ -88,7 +92,11 @@ function Show-BranchMenu {
     [CmdletBinding()]
     param([Parameter()][AllowNull()][object]$Context, [Parameter()][bool]$BeginnerMode = $true)
     if (-not (Test-MenuContext $Context)) { return }
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Branches')
         Write-Host ''
         Write-Host 'BRANCHES AND WORKTREES' -ForegroundColor Cyan
         Get-GitBranchList -Path $Context.Path | ForEach-Object {
@@ -218,7 +226,11 @@ function Show-CommitPushMenu {
     [CmdletBinding()]
     param([Parameter()][AllowNull()][object]$Context, [Parameter()][bool]$BeginnerMode = $true)
     if (-not (Test-MenuContext $Context)) { return }
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Commit and push')
         $status = Get-GitStatus -Path $Context.Path
         Write-Host ''
         Write-Host 'COMMIT AND PUSH' -ForegroundColor Cyan
@@ -332,7 +344,11 @@ function Show-WorkflowMenu {
     param([Parameter()][AllowNull()][object]$Context, [Parameter()][string]$ConfigPath = (Lamfa-GetConfigPath))
     if (-not (Test-MenuContext $Context)) { return }
     $resolved = Lamfa-GetProfile -RepositoryPath $Context.Path -RepositoryName $Context.Name
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Build and quality')
         Write-Host ''
         Write-Host "BUILD, TEST, AND QUALITY  (profile: $($resolved.Source))" -ForegroundColor Cyan
         $commands = @()
@@ -413,6 +429,7 @@ function Show-RecoveryMenu {
     [CmdletBinding()]
     param([Parameter()][AllowNull()][object]$Context)
     if (-not (Test-MenuContext $Context)) { return }
+    Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Backup and recovery')
     Write-Host ''
     Write-Host 'BACKUP AND RECOVERY' -ForegroundColor Cyan
     $guidance = @(Get-GitRecoveryGuidance -Path $Context.Path)

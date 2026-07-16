@@ -33,7 +33,11 @@ function Show-PullRequestMenu {
     }
     $adapter = $resolvedAdapter.Adapter
     $isGitHub = ($resolvedAdapter.Provider -eq 'github')
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Pull requests')
         Write-Host ''
         Write-Host "PULL REQUESTS AND REVIEWS  (provider: $($resolvedAdapter.Provider))" -ForegroundColor Cyan
         $pr = $null
@@ -125,7 +129,11 @@ function Show-PullRequestMenu {
 function Show-AccountsMenu {
     [CmdletBinding()]
     param([Parameter()][AllowNull()][object]$Context)
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Accounts')
         Write-Host ''
         Write-Host 'ACCOUNTS AND AUTHENTICATION' -ForegroundColor Cyan
         Write-Host ' These are THREE separate things (a frequent source of confusion):' -ForegroundColor DarkGray

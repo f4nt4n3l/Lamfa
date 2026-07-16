@@ -14,7 +14,11 @@ Import-Module -Name (Join-Path $PSScriptRoot 'WebUi.psm1') -DisableNameChecking
 function Show-SettingsMenu {
     [CmdletBinding()]
     param([Parameter()][string]$ConfigPath = (Lamfa-GetConfigPath))
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Settings')
         $config = Lamfa-GetConfiguration -Path $ConfigPath
         Write-Host ''
         Write-Host 'SETTINGS, DIAGNOSTICS, AND HELP' -ForegroundColor Cyan
