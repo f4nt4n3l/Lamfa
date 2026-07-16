@@ -3,23 +3,26 @@
     from the modular source. The generated file must never be edited
     manually. Also writes dist/checksums.txt.
 
-    Usage:  pwsh -File Build.ps1
+    Usage:  pwsh -File tools/Build.ps1
 #>
 [CmdletBinding()]
 param(
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist'),
+    [string]$OutputDirectory = '',
     [switch]$Package
 )
 
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = 'Stop'
 
-$manifest = Import-PowerShellDataFile -Path (Join-Path $PSScriptRoot 'Lamfa.psd1')
+$repoRoot = Split-Path -Path $PSScriptRoot -Parent
+if (-not $OutputDirectory) { $OutputDirectory = Join-Path $repoRoot 'dist' }
+
+$manifest = Import-PowerShellDataFile -Path (Join-Path $repoRoot 'Lamfa.psd1')
 $version = $manifest.ModuleVersion
 
 $commit = 'uncommitted'
 try {
-    $gitOutput = & git -C $PSScriptRoot rev-parse --short HEAD 2>$null
+    $gitOutput = & git -C $repoRoot rev-parse --short HEAD 2>$null
     if ($LASTEXITCODE -eq 0 -and $gitOutput) { $commit = $gitOutput.Trim() }
 } catch {
     # Not a git repository or git unavailable - the placeholder stays.
@@ -28,75 +31,75 @@ try {
 
 # Source modules in dependency order. Add new modules here as phases land.
 $moduleFiles = @(
-    (Join-Path $PSScriptRoot 'src/Models/CommandResult.psm1'),
-    (Join-Path $PSScriptRoot 'src/Models/DependencyStatus.psm1'),
-    (Join-Path $PSScriptRoot 'src/Models/RepositoryContext.psm1'),
-    (Join-Path $PSScriptRoot 'src/Models/OperationDefinition.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/ConsoleRenderer.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/Platform.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/Logging.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/CommandRunner.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/Configuration.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/DependencyCheck.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/SelfUpdate.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/SecretVault.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/Preconditions.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/Safety.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/OperationEngine.psm1'),
-    (Join-Path $PSScriptRoot 'src/Repositories/RepositoryValidation.psm1'),
-    (Join-Path $PSScriptRoot 'src/Repositories/RepositoryRegistry.psm1'),
-    (Join-Path $PSScriptRoot 'src/Repositories/RepositoryDiscovery.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitStatus.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitBranches.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitRemotes.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitCommits.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitDiff.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitHistory.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitStash.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitTags.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitWorktrees.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitRepository.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitRecovery.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitHunks.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitUndo.psm1'),
-    (Join-Path $PSScriptRoot 'src/Git/GitInsights.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/GenericRemote.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/GitHub/GitHubAuth.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/GitHub/GitHubRepositories.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/GitHub/GitHubPullRequests.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/GitHub/GitHubReviews.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/GitLab/GitLabAdapter.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/Gitea/GiteaAdapter.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/Bitbucket/BitbucketAdapter.psm1'),
-    (Join-Path $PSScriptRoot 'src/Workflows/ProfileLoader.psm1'),
-    (Join-Path $PSScriptRoot 'src/Workflows/ProjectDetection.psm1'),
-    (Join-Path $PSScriptRoot 'src/Workflows/WorkflowEngine.psm1'),
-    (Join-Path $PSScriptRoot 'src/Workflows/ReleaseTools.psm1'),
-    (Join-Path $PSScriptRoot 'src/Workflows/ReleaseOrchestrator.psm1'),
-    (Join-Path $PSScriptRoot 'src/Providers/ProviderAdapter.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/State.psm1'),
-    (Join-Path $PSScriptRoot 'src/Docker/DockerEnvironment.psm1'),
-    (Join-Path $PSScriptRoot 'src/Docker/DockerImages.psm1'),
-    (Join-Path $PSScriptRoot 'src/Docker/DockerContainers.psm1'),
-    (Join-Path $PSScriptRoot 'src/Docker/DockerCompose.psm1'),
-    (Join-Path $PSScriptRoot 'src/Docker/DockerRegistry.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/Help.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/RepositoryMenu.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/GitMenu.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/GitHubMenu.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/DockerMenu.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/SettingsMenu.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/MainMenu.psm1'),
-    (Join-Path $PSScriptRoot 'src/Core/ApiFacade.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/WebUi.psm1'),
-    (Join-Path $PSScriptRoot 'src/UI/LamfaCli.psm1'),
-    (Join-Path $PSScriptRoot 'Lamfa.psm1')
+    (Join-Path $repoRoot 'src/Models/CommandResult.psm1'),
+    (Join-Path $repoRoot 'src/Models/DependencyStatus.psm1'),
+    (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1'),
+    (Join-Path $repoRoot 'src/Models/OperationDefinition.psm1'),
+    (Join-Path $repoRoot 'src/UI/ConsoleRenderer.psm1'),
+    (Join-Path $repoRoot 'src/Core/Platform.psm1'),
+    (Join-Path $repoRoot 'src/Core/Logging.psm1'),
+    (Join-Path $repoRoot 'src/Core/CommandRunner.psm1'),
+    (Join-Path $repoRoot 'src/Core/Configuration.psm1'),
+    (Join-Path $repoRoot 'src/Core/DependencyCheck.psm1'),
+    (Join-Path $repoRoot 'src/Core/SelfUpdate.psm1'),
+    (Join-Path $repoRoot 'src/Core/SecretVault.psm1'),
+    (Join-Path $repoRoot 'src/Core/Preconditions.psm1'),
+    (Join-Path $repoRoot 'src/Core/Safety.psm1'),
+    (Join-Path $repoRoot 'src/Core/OperationEngine.psm1'),
+    (Join-Path $repoRoot 'src/Repositories/RepositoryValidation.psm1'),
+    (Join-Path $repoRoot 'src/Repositories/RepositoryRegistry.psm1'),
+    (Join-Path $repoRoot 'src/Repositories/RepositoryDiscovery.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitStatus.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitBranches.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitRemotes.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitCommits.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitDiff.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitHistory.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitStash.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitTags.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitWorktrees.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitRepository.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitRecovery.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitHunks.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitUndo.psm1'),
+    (Join-Path $repoRoot 'src/Git/GitInsights.psm1'),
+    (Join-Path $repoRoot 'src/Providers/GenericRemote.psm1'),
+    (Join-Path $repoRoot 'src/Providers/GitHub/GitHubAuth.psm1'),
+    (Join-Path $repoRoot 'src/Providers/GitHub/GitHubRepositories.psm1'),
+    (Join-Path $repoRoot 'src/Providers/GitHub/GitHubPullRequests.psm1'),
+    (Join-Path $repoRoot 'src/Providers/GitHub/GitHubReviews.psm1'),
+    (Join-Path $repoRoot 'src/Providers/GitLab/GitLabAdapter.psm1'),
+    (Join-Path $repoRoot 'src/Providers/Gitea/GiteaAdapter.psm1'),
+    (Join-Path $repoRoot 'src/Providers/Bitbucket/BitbucketAdapter.psm1'),
+    (Join-Path $repoRoot 'src/Workflows/ProfileLoader.psm1'),
+    (Join-Path $repoRoot 'src/Workflows/ProjectDetection.psm1'),
+    (Join-Path $repoRoot 'src/Workflows/WorkflowEngine.psm1'),
+    (Join-Path $repoRoot 'src/Workflows/ReleaseTools.psm1'),
+    (Join-Path $repoRoot 'src/Workflows/ReleaseOrchestrator.psm1'),
+    (Join-Path $repoRoot 'src/Providers/ProviderAdapter.psm1'),
+    (Join-Path $repoRoot 'src/Core/State.psm1'),
+    (Join-Path $repoRoot 'src/Docker/DockerEnvironment.psm1'),
+    (Join-Path $repoRoot 'src/Docker/DockerImages.psm1'),
+    (Join-Path $repoRoot 'src/Docker/DockerContainers.psm1'),
+    (Join-Path $repoRoot 'src/Docker/DockerCompose.psm1'),
+    (Join-Path $repoRoot 'src/Docker/DockerRegistry.psm1'),
+    (Join-Path $repoRoot 'src/UI/Help.psm1'),
+    (Join-Path $repoRoot 'src/UI/RepositoryMenu.psm1'),
+    (Join-Path $repoRoot 'src/UI/GitMenu.psm1'),
+    (Join-Path $repoRoot 'src/UI/GitHubMenu.psm1'),
+    (Join-Path $repoRoot 'src/UI/DockerMenu.psm1'),
+    (Join-Path $repoRoot 'src/UI/SettingsMenu.psm1'),
+    (Join-Path $repoRoot 'src/UI/MainMenu.psm1'),
+    (Join-Path $repoRoot 'src/Core/ApiFacade.psm1'),
+    (Join-Path $repoRoot 'src/UI/WebUi.psm1'),
+    (Join-Path $repoRoot 'src/UI/LamfaCli.psm1'),
+    (Join-Path $repoRoot 'Lamfa.psm1')
 )
 
 $bodyBuilder = [System.Text.StringBuilder]::new()
 foreach ($file in $moduleFiles) {
     if (-not (Test-Path -Path $file)) { throw "Source module not found: $file" }
-    $relative = [System.IO.Path]::GetRelativePath($PSScriptRoot, $file)
+    $relative = [System.IO.Path]::GetRelativePath($repoRoot, $file)
     [void]$bodyBuilder.AppendLine("# --- begin $relative ---")
     foreach ($line in (Get-Content -Path $file)) {
         # In the single file everything shares one scope: module plumbing lines
@@ -136,7 +139,7 @@ if ($SelfTest) {
 # the same commit always produces byte-identical output.
 $timestamp = 'unknown (uncommitted)'
 try {
-    $commitDate = & git -C $PSScriptRoot log -1 --format=%cI 2>$null
+    $commitDate = & git -C $repoRoot log -1 --format=%cI 2>$null
     if ($LASTEXITCODE -eq 0 -and $commitDate) { $timestamp = $commitDate.Trim() }
 } catch { $timestamp = 'unknown (uncommitted)' }
 $header = @"
@@ -144,7 +147,7 @@ $header = @"
     Lamfa $version - generated single-file distribution.
 
     GENERATED FILE - DO NOT EDIT MANUALLY.
-    Source repository modules are authoritative; rebuild with Build.ps1.
+    Source repository modules are authoritative; rebuild with tools/Build.ps1.
 
     Version   : $version
     Built     : $timestamp
@@ -194,13 +197,14 @@ if ($Package) {
     $null = New-Item -ItemType Directory -Path (Join-Path $stage 'config') -Force
     $null = New-Item -ItemType Directory -Path (Join-Path $stage 'profiles') -Force
     Copy-Item -Path $outputFile -Destination (Join-Path $stage 'Lamfa.ps1')
-    Copy-Item -Path (Join-Path $PSScriptRoot 'README.md') -Destination $stage
-    Copy-Item -Path (Join-Path $PSScriptRoot 'CHANGELOG.md') -Destination $stage
+    Copy-Item -Path (Join-Path $repoRoot 'tools/Install-Lamfa.ps1') -Destination $stage
+    Copy-Item -Path (Join-Path $repoRoot 'README.md') -Destination $stage
+    Copy-Item -Path (Join-Path $repoRoot 'CHANGELOG.md') -Destination $stage
     foreach ($doc in @('USER_GUIDE.md', 'RECOVERY_GUIDE.md', 'ADMIN_GUIDE.md', 'PROFILE_SCHEMA.md')) {
-        Copy-Item -Path (Join-Path $PSScriptRoot "docs/$doc") -Destination (Join-Path $stage 'docs')
+        Copy-Item -Path (Join-Path $repoRoot "docs/$doc") -Destination (Join-Path $stage 'docs')
     }
-    Copy-Item -Path (Join-Path $PSScriptRoot 'config/*.json') -Destination (Join-Path $stage 'config')
-    Copy-Item -Path (Join-Path $PSScriptRoot 'profiles/*.json') -Destination (Join-Path $stage 'profiles')
+    Copy-Item -Path (Join-Path $repoRoot 'config/*.json') -Destination (Join-Path $stage 'config')
+    Copy-Item -Path (Join-Path $repoRoot 'profiles/*.json') -Destination (Join-Path $stage 'profiles')
     $zipPath = Join-Path $OutputDirectory "Lamfa-$version.zip"
     if (Test-Path $zipPath) { Remove-Item -Path $zipPath -Force }
     Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zipPath

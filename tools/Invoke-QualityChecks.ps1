@@ -24,13 +24,13 @@ foreach ($module in @('PSScriptAnalyzer', 'Pester')) {
 }
 
 Write-Host '=== PSScriptAnalyzer ===' -ForegroundColor Cyan
-$analyzePaths = @('Lamfa.ps1', 'Lamfa.psm1', 'Build.ps1', 'src', 'tools', 'tests') |
+$analyzePaths = @('Lamfa.ps1', 'Lamfa.psm1', 'src', 'tools', 'tests') |
     ForEach-Object { Join-Path $repoRoot $_ } |
     Where-Object { Test-Path $_ }
 
 $findings = @()
 foreach ($path in $analyzePaths) {
-    $findings += Invoke-ScriptAnalyzer -Path $path -Recurse -Settings (Join-Path $repoRoot 'PSScriptAnalyzerSettings.psd1')
+    $findings += Invoke-ScriptAnalyzer -Path $path -Recurse -Settings (Join-Path $repoRoot 'tools/PSScriptAnalyzerSettings.psd1')
 }
 if ($findings.Count -gt 0) {
     $findings | Format-Table RuleName, Severity, ScriptName, Line, Message -AutoSize | Out-String | Write-Host
