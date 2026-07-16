@@ -2,9 +2,9 @@
 # spaces, discovery, clone from local source, deletion guards.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryValidation.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryRegistry.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryDiscovery.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryValidation.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryRegistry.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryDiscovery.psm1') -Force -DisableNameChecking
     . (Join-Path $repoRoot 'tools/New-TestRepository.ps1')
 
     $script:sandbox = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa-reg-" + [guid]::NewGuid())

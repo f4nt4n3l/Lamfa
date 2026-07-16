@@ -48,7 +48,7 @@ function Use-GitStash {
         [Parameter()][ValidateSet('Apply', 'Pop')][string]$Mode = 'Apply'
     )
     $result = Invoke-ExternalCommand -Executable git -Arguments @('stash', $Mode.ToLowerInvariant(), $Ref) `
-        -WorkingDirectory $Path -AllowNonZeroExitCode
+        -WorkingDirectory $Path
     if ($result.ExitCode -eq 0) {
         return [pscustomobject]@{ PSTypeName = 'Lamfa.GitStashResult'; Outcome = 'Applied'; Detail = '' }
     }

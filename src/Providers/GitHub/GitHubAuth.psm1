@@ -29,7 +29,7 @@ function Get-GitHubAuthStatus {
     [OutputType([pscustomobject])]
     param()
     $result = Invoke-ExternalCommand -Executable gh -Arguments @('auth', 'status') `
-        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -AllowNonZeroExitCode
+        -WorkingDirectory ([System.IO.Path]::GetTempPath())
     $text = $result.StandardOutput + "`n" + $result.StandardError
     $accounts = [System.Collections.Generic.List[object]]::new()
     foreach ($line in ($text -split "`r?`n")) {

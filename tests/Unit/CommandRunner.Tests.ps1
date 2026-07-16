@@ -4,7 +4,7 @@
 # so the suite runs anywhere PowerShell 7 runs.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Core/CommandRunner.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Core/CommandRunner.psm1') -Force -DisableNameChecking
     $script:workDir = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa cmd test " + [guid]::NewGuid())
     $null = New-Item -ItemType Directory -Path $script:workDir
 }
@@ -52,12 +52,6 @@ Describe 'Invoke-ExternalCommand' {
         $result.ExitCode | Should -Be 3
     }
 
-    It 'honors AllowNonZeroExitCode' {
-        $result = Invoke-ExternalCommand -Executable pwsh `
-            -Arguments @('-NoProfile', '-Command', 'exit 1') -WorkingDirectory $script:workDir -AllowNonZeroExitCode
-        $result.Succeeded | Should -BeTrue
-    }
-
     It 'captures standard error' {
         $result = Invoke-ExternalCommand -Executable pwsh `
             -Arguments @('-NoProfile', '-Command', '[Console]::Error.WriteLine("bad thing"); exit 1') `
@@ -88,7 +82,7 @@ Describe 'Invoke-ExternalCommand' {
     It 'produces a redacted SanitizedCommand' {
         $result = Invoke-ExternalCommand -Executable pwsh `
             -Arguments @('-NoProfile', '-Command', 'exit 0', '--password', 'S3cret!') `
-            -WorkingDirectory $script:workDir -AllowNonZeroExitCode
+            -WorkingDirectory $script:workDir
         $result.SanitizedCommand | Should -Not -Match 'S3cret!'
         $result.SanitizedCommand | Should -Match 'REDACTED'
     }

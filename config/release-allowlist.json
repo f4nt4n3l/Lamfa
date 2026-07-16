@@ -1,0 +1,17 @@
+{
+  "comment": "Contract for the portable package. Every file inside the ZIP must match allowedFiles exactly; any extra file fails tools/Test-ReleasePackage.ps1. forbiddenNames may not appear anywhere in an entry path. Private strings to scan file CONTENT for are read from the optional local file .claude/forbidden-strings.txt (one per line, never committed).",
+  "allowedFiles": [
+    "Lamfa.ps1",
+    "Install-Lamfa.ps1",
+    "README.md",
+    "CHANGELOG.md",
+    "docs/USER_GUIDE.md",
+    "docs/RECOVERY_GUIDE.md",
+    "docs/ADMIN_GUIDE.md",
+    "docs/PROFILE_SCHEMA.md",
+    "config/default-config.json",
+    "config/dependency-policy.json",
+    "profiles/default.json"
+  ],
+  "forbiddenNames": [".git", ".claude", "legacy", "RepoTool", "dist"]
+}

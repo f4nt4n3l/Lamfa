@@ -3,9 +3,9 @@
 # manual acceptance pass.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/UI/Help.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/UI/MainMenu.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/UI/Help.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/UI/MainMenu.psm1') -Force -DisableNameChecking
 }
 
 Describe 'Recommended next action' {
@@ -55,7 +55,7 @@ Describe 'Menu modules load with all commands resolvable' {
 
 Describe 'lamfa CLI dispatcher' {
     BeforeAll {
-        Import-Module (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'src/UI/LamfaCli.psm1') -Force
+        Import-Module (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'src/UI/LamfaCli.psm1') -Force -DisableNameChecking
     }
     It 'exposes the lamfa command and the full subcommand list' {
         # The entry function is named Lamfa itself - the command IS lamfa.

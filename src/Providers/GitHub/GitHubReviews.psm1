@@ -13,7 +13,7 @@ function Get-GitHubPullRequestFeedback {
     param([Parameter(Mandatory)][string]$Path)
     $result = Invoke-ExternalCommand -Executable gh `
         -Arguments @('pr', 'view', '--json', 'reviewDecision,reviews,comments') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     if ($result.ExitCode -ne 0) { return $null }
     $json = $result.StandardOutput | ConvertFrom-Json
     return [pscustomobject]@{

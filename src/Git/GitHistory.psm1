@@ -19,7 +19,7 @@ function Get-GitHistory {
     $arguments = @('log', "--max-count=$Limit", '--date=iso-strict', '--format=%h%x1f%an%x1f%ad%x1f%s')
     if ($Unpushed) { $arguments += @('--branches', '--not', '--remotes') }
     elseif ($AllBranches) { $arguments += '--branches' }
-    $result = Invoke-ExternalCommand -Executable git -Arguments $arguments -WorkingDirectory $Path -AllowNonZeroExitCode
+    $result = Invoke-ExternalCommand -Executable git -Arguments $arguments -WorkingDirectory $Path
     if ($result.ExitCode -ne 0) { return @() }   # empty repository has no log
     $commits = foreach ($line in ($result.StandardOutput -split "`r?`n" | Where-Object { $_ })) {
         $parts = $line -split "`u{1f}"
@@ -47,7 +47,7 @@ function Get-GitHistoryGraph {
     )
     $result = Invoke-ExternalCommand -Executable git `
         -Arguments @('log', '--graph', '--oneline', '--decorate', "--max-count=$Limit", '--branches') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode
+        -WorkingDirectory $Path
     return $result.StandardOutput
 }
 

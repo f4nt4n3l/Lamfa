@@ -1,7 +1,7 @@
 # Redaction + structured logging tests.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Core/Logging.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Core/Logging.psm1') -Force -DisableNameChecking
 }
 
 Describe 'Get-RedactedText' {

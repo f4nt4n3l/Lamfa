@@ -7,7 +7,7 @@ BeforeAll {
                      'Git/GitDiff', 'Git/GitHistory', 'Git/GitStash', 'Git/GitTags',
                      'Git/GitWorktrees', 'Git/GitRepository', 'Git/GitRecovery',
                      'Models/RepositoryContext')) {
-        Import-Module (Join-Path $repoRoot "src/$m.psm1") -Force
+        Import-Module (Join-Path $repoRoot "src/$m.psm1") -Force -DisableNameChecking
     }
     . (Join-Path $repoRoot 'tools/New-TestRepository.ps1')
     $script:fixtures = [System.Collections.Generic.List[object]]::new()

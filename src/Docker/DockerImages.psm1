@@ -82,7 +82,7 @@ function Get-DockerImageDigest {
     param([Parameter(Mandatory)][string]$ImageReference)
     $result = Invoke-ExternalCommand -Executable docker `
         -Arguments @('image', 'inspect', '--format', '{{json .RepoDigests}}', $ImageReference) `
-        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 60
     if ($result.ExitCode -ne 0) { return @() }
     return @($result.StandardOutput.Trim() | ConvertFrom-Json)
 }

@@ -16,7 +16,7 @@ function Get-DockerStatus {
             Message = 'Docker CLI is not installed. Docker features are optional; everything else keeps working.' }
     }
     $version = Invoke-ExternalCommand -Executable docker -Arguments @('version', '--format', 'json') `
-        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -AllowNonZeroExitCode -TimeoutSeconds 30
+        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 30
     $client = $null; $server = $null
     if ($version.StandardOutput) {
         try {
@@ -26,9 +26,9 @@ function Get-DockerStatus {
         } catch { $client = $null }
     }
     $compose = Invoke-ExternalCommand -Executable docker -Arguments @('compose', 'version', '--short') `
-        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -AllowNonZeroExitCode -TimeoutSeconds 30
+        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 30
     $context = Invoke-ExternalCommand -Executable docker -Arguments @('context', 'show') `
-        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -AllowNonZeroExitCode -TimeoutSeconds 30
+        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 30
     return [pscustomobject]@{
         PSTypeName     = 'Lamfa.DockerStatus'
         CliInstalled   = $true

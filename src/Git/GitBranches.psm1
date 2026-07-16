@@ -49,14 +49,14 @@ function Get-GitDefaultBranch {
     )
     if ([string]::IsNullOrWhiteSpace($RemoteName)) { $RemoteName = 'origin' }
     $result = Invoke-ExternalCommand -Executable git `
-        -Arguments @('symbolic-ref', '-q', "refs/remotes/$RemoteName/HEAD") -WorkingDirectory $Path -AllowNonZeroExitCode
+        -Arguments @('symbolic-ref', '-q', "refs/remotes/$RemoteName/HEAD") -WorkingDirectory $Path
     if ($result.ExitCode -eq 0 -and $result.StandardOutput.Trim()) {
         return $result.StandardOutput.Trim() -replace "^refs/remotes/$RemoteName/", ''
     }
     # Fallback: a local main/master branch.
     foreach ($candidate in @('main', 'master')) {
         $probe = Invoke-ExternalCommand -Executable git -Arguments @('rev-parse', '-q', '--verify', "refs/heads/$candidate") `
-            -WorkingDirectory $Path -AllowNonZeroExitCode
+            -WorkingDirectory $Path
         if ($probe.ExitCode -eq 0) { return $candidate }
     }
     return $null
@@ -101,7 +101,7 @@ function New-GitBranch {
         [Parameter()][switch]$Switch
     )
     $check = Invoke-ExternalCommand -Executable git -Arguments @('check-ref-format', '--branch', $Name) `
-        -WorkingDirectory $Path -AllowNonZeroExitCode
+        -WorkingDirectory $Path
     if ($check.ExitCode -ne 0) { throw "ValidationError: '$Name' is not a valid branch name." }
     $arguments = if ($Switch) { @('switch', '-c', $Name, $SourceRef) } else { @('branch', $Name, $SourceRef) }
     $result = Invoke-ExternalCommand -Executable git -Arguments $arguments -WorkingDirectory $Path
@@ -168,7 +168,7 @@ function Rename-GitBranch {
         [Parameter(Mandatory)][string]$NewName
     )
     $check = Invoke-ExternalCommand -Executable git -Arguments @('check-ref-format', '--branch', $NewName) `
-        -WorkingDirectory $Path -AllowNonZeroExitCode
+        -WorkingDirectory $Path
     if ($check.ExitCode -ne 0) { throw "ValidationError: '$NewName' is not a valid branch name." }
     $result = Invoke-ExternalCommand -Executable git -Arguments @('branch', '-m', $Name, $NewName) -WorkingDirectory $Path
     if (-not $result.Succeeded) { throw "ExternalCommandError: rename failed. $($result.StandardError)" }

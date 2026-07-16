@@ -2,10 +2,10 @@
 # A read-only sample operation must complete end to end.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Models/OperationDefinition.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/CommandRunner.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/OperationEngine.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Models/OperationDefinition.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/CommandRunner.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/OperationEngine.psm1') -Force -DisableNameChecking
     $script:workDir = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa-engine-" + [guid]::NewGuid())
     $null = New-Item -ItemType Directory -Path $script:workDir
 }

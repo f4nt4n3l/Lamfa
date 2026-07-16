@@ -2,13 +2,13 @@
 # logic with Invoke-ExternalCommand MOCKED (no network, no daemon, no creds).
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Providers/GitHub/GitHubAuth.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Providers/GitHub/GitHubRepositories.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Providers/GitHub/GitHubPullRequests.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Docker/DockerEnvironment.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Docker/DockerImages.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Docker/DockerRegistry.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Workflows/ProfileLoader.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Providers/GitHub/GitHubAuth.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Providers/GitHub/GitHubRepositories.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Providers/GitHub/GitHubPullRequests.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Docker/DockerEnvironment.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Docker/DockerImages.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Docker/DockerRegistry.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Workflows/ProfileLoader.psm1') -Force -DisableNameChecking
 
 }
 
@@ -73,7 +73,7 @@ Describe 'GitHub repository access + PR parsing' {
 Describe 'Docker status + context parsing' {
     It 'degrades gracefully when the daemon is down (client only)' {
         Mock Invoke-ExternalCommand -ModuleName DockerEnvironment {
-            param($Executable, $Arguments, $WorkingDirectory, $Environment, $TimeoutSeconds, $AllowNonZeroExitCode)
+            param($Executable, $Arguments, $WorkingDirectory, $Environment, $TimeoutSeconds)
             if ($Arguments -contains 'version') {
                 return [pscustomobject]@{ ExitCode = 1; Succeeded = $false
                     StandardOutput = '{"Client":{"Version":"29.2.0"}}'; StandardError = 'error during connect' }
@@ -117,7 +117,7 @@ Describe 'Docker registry target resolution' {
 Describe 'Generic remote provider detection' {
     BeforeAll {
         $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-        Import-Module (Join-Path $repoRoot 'src/Providers/GenericRemote.psm1') -Force
+        Import-Module (Join-Path $repoRoot 'src/Providers/GenericRemote.psm1') -Force -DisableNameChecking
     }
     It 'detects <expected> from <url>' -ForEach @(
         @{ url = 'https://github.com/org/repo.git';          expected = 'github' }

@@ -1,7 +1,7 @@
 # Configuration loader + validation tests.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Core/Configuration.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Core/Configuration.psm1') -Force -DisableNameChecking
     $script:tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa-cfg-" + [guid]::NewGuid())
     $null = New-Item -ItemType Directory -Path $script:tempDir
     $script:cfgPath = Join-Path $script:tempDir 'config.json'

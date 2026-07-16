@@ -257,21 +257,35 @@ function Lamfa-UpdateFetchFreshness {
     $minutes = 15
     $preference = $config.preferences.PSObject.Properties['fetchFreshnessMinutes']
     if ($preference -and [int]$preference.Value -gt 0) { $minutes = [int]$preference.Value }
-    $lastProperty = $registration.PSObject.Properties['lastFetchUtc']
-    if ($lastProperty -and $lastProperty.Value) {
+    # Throttle on the last ATTEMPT (a broken remote must not be re-tried on
+    # every screen), but only a SUCCESSFUL fetch counts as fresh remote state.
+    # 'lastFetchUtc' is the pre-split field name - read it as the last attempt.
+    $attemptProperty = $registration.PSObject.Properties['lastFetchAttemptUtc']
+    if (-not ($attemptProperty -and $attemptProperty.Value)) {
+        $attemptProperty = $registration.PSObject.Properties['lastFetchUtc']
+    }
+    if ($attemptProperty -and $attemptProperty.Value) {
         # ConvertFrom-Json may hand back a [datetime] (local kind) or the ISO string.
-        $raw = $lastProperty.Value
+        $raw = $attemptProperty.Value
         $last = if ($raw -is [datetime]) { $raw.ToUniversalTime() }
         else { [DateTimeOffset]::Parse([string]$raw, [cultureinfo]::InvariantCulture).UtcDateTime }
         if (([DateTime]::UtcNow - $last).TotalMinutes -lt $minutes) { return $false }
     }
     $remoteName = if ($Context.PreferredRemote) { $Context.PreferredRemote } else { 'origin' }
     $fetch = Invoke-ExternalCommand -Executable git -Arguments @('fetch', '--prune', $remoteName) `
-        -WorkingDirectory $Context.Path -TimeoutSeconds 120 -AllowNonZeroExitCode
-    if (-not $lastProperty) {
-        $registration | Add-Member -NotePropertyName lastFetchUtc -NotePropertyValue $null
+        -WorkingDirectory $Context.Path -TimeoutSeconds 120
+    foreach ($field in @('lastFetchAttemptUtc', 'lastSuccessfulFetchUtc', 'lastFetchError')) {
+        if (-not $registration.PSObject.Properties[$field]) {
+            $registration | Add-Member -NotePropertyName $field -NotePropertyValue $null
+        }
     }
-    $registration.lastFetchUtc = [DateTime]::UtcNow.ToString('o')
+    $registration.lastFetchAttemptUtc = [DateTime]::UtcNow.ToString('o')
+    if ($fetch.Succeeded) {
+        $registration.lastSuccessfulFetchUtc = $registration.lastFetchAttemptUtc
+        $registration.lastFetchError = $null
+    } else {
+        $registration.lastFetchError = $fetch.StandardError.Trim()
+    }
     Lamfa-SaveConfiguration -Configuration $config -Path $ConfigPath
     return $fetch.Succeeded
 }
