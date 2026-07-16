@@ -21,6 +21,11 @@ branch, upstream, clean/dirty, ahead/behind), and one recommended next action.
 If the header says the wrong repository is active, fix that first - every
 action targets the active repository.
 
+Every menu screen starts with the same two status lines: the active
+repository with its branch and state, and the GitHub account, Docker context,
+and mode. After an action prints its output, press any key to return to the
+menu - the screen is then redrawn instead of scrolling.
+
 ## Menus
 
 | # | Menu | What you do there |

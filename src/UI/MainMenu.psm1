@@ -34,14 +34,48 @@ function Lamfa-GetRecommendedAction {
     return 'Everything is in sync. Create a branch under [3] before starting new work.'
 }
 
+function Lamfa-BuildStatusBar {
+    <#
+    .SYNOPSIS
+        Composes the two persistent status lines (repository state; accounts
+        and mode) shown at the top of every screen via Lamfa-SetStatusBar.
+    #>
+    [CmdletBinding()]
+    [OutputType([string[]])]
+    param(
+        [Parameter()][AllowNull()][object]$Context = $null,
+        [Parameter()][AllowNull()][object]$DockerStatus = $null,
+        [Parameter()][bool]$BeginnerMode = $true
+    )
+    $repoLine = 'no active repository'
+    if ($null -ne $Context) {
+        $branch = if ($Context.IsDetachedHead) { '(detached HEAD)' } else { $Context.CurrentBranch }
+        $repoLine = "$($Context.Name) @ $branch  [$($Context.WorkingTreeState)]"
+        if ($null -ne $Context.AheadCount) { $repoLine += "  ahead $($Context.AheadCount) / behind $($Context.BehindCount)" }
+    }
+    $account = 'not logged in'
+    try {
+        $auth = Get-GitHubAuthStatus
+        $active = @($auth.Accounts | Where-Object Active | Select-Object -First 1)
+        if ($active.Count -gt 0) { $account = $active[0].Account }
+    } catch { $account = 'unknown' }
+    $dockerText = 'off'
+    if ($null -ne $DockerStatus -and $DockerStatus.DaemonRunning) { $dockerText = $DockerStatus.CurrentContext }
+    $mode = if ($BeginnerMode) { 'Beginner' } else { 'Advanced' }
+    return @($repoLine, "GitHub: $account  |  Docker: $dockerText  |  Mode: $mode")
+}
+
 function Lamfa-ShowDashboard {
     [CmdletBinding()]
-    param([Parameter()][AllowNull()][object]$Context = $null)
+    param(
+        [Parameter()][AllowNull()][object]$Context = $null,
+        [Parameter()][AllowNull()][object]$DockerStatus = $null
+    )
     Clear-Host
     Lamfa-WriteHeader -Text 'Lamfa'
     $git = Get-GitDependencyStatus
     $gh = Get-GitHubCliStatus
-    $docker = Get-DockerStatus
+    $docker = if ($null -ne $DockerStatus) { $DockerStatus } else { Get-DockerStatus }
     Write-Host ''
     Write-Host ' Environment' -ForegroundColor White
     Lamfa-WriteKeyValue -Key 'PowerShell' -Value $PSVersionTable.PSVersion.ToString()
@@ -152,8 +186,10 @@ function Lamfa-StartMainMenu {
                 $context = Lamfa-UpdateRepositoryContext -Context $context
             }
         }
-        Lamfa-ShowDashboard -Context $context
         $beginner = [bool]$config.beginnerMode
+        $docker = Get-DockerStatus
+        Lamfa-SetStatusBar -Lines (Lamfa-BuildStatusBar -Context $context -DockerStatus $docker -BeginnerMode $beginner)
+        Lamfa-ShowDashboard -Context $context -DockerStatus $docker
         Write-Host ''
         $selected = Lamfa-SelectMenuChoice -Items (Lamfa-GetMainMenuItemList) -Breadcrumb @('Lamfa')
         if ($null -eq $selected) { return }
@@ -173,4 +209,4 @@ function Lamfa-StartMainMenu {
     }
 }
 
-Export-ModuleMember -Function Lamfa-GetRecommendedAction, Lamfa-GetMainMenuItemList, Lamfa-ShowDashboard, Lamfa-InvokeFirstRunWizard, Lamfa-StartMainMenu
+Export-ModuleMember -Function Lamfa-GetRecommendedAction, Lamfa-GetMainMenuItemList, Lamfa-BuildStatusBar, Lamfa-ShowDashboard, Lamfa-InvokeFirstRunWizard, Lamfa-StartMainMenu

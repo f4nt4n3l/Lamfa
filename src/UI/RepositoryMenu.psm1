@@ -75,7 +75,11 @@ function Invoke-CloneRepositoryFlow {
 function Show-RepositoryMenu {
     [CmdletBinding()]
     param([Parameter()][string]$ConfigPath = (Lamfa-GetConfigPath))
+    $screenShown = $false
     while ($true) {
+        if ($screenShown) { Lamfa-PauseForReview }
+        $screenShown = $true
+        Lamfa-ShowScreen -Breadcrumb @('Lamfa', 'Repositories')
         Write-Host ''
         Write-Host 'REPOSITORIES' -ForegroundColor Cyan
         Write-Host '  1. Switch active repository     4. Clone from URL'

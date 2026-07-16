@@ -2,8 +2,8 @@
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
     foreach ($m in @('Git/GitHunks', 'Git/GitUndo', 'Git/GitInsights', 'Git/GitCommits',
-                     'Git/GitStatus', 'Git/GitHistory', 'Core/ApiFacade', 'Core/SelfUpdate',
-                     'UI/WebUi', 'Repositories/RepositoryRegistry')) {
+                     'Git/GitStatus', 'Git/GitHistory', 'Git/GitBranches', 'Core/ApiFacade',
+                     'Core/SelfUpdate', 'UI/WebUi', 'Repositories/RepositoryRegistry')) {
         Import-Module (Join-Path $repoRoot "src/$m.psm1") -Force -DisableNameChecking
     }
     . (Join-Path $repoRoot 'tools/New-TestRepository.ps1')
@@ -130,7 +130,12 @@ Describe 'API facade' {
 
 Describe 'Web UI guardrails' {
     It 'serves the dashboard and the API only with the session token' {
-        $port = Get-Random -Minimum 49000 -Maximum 59000
+        # Ask the OS for a genuinely free port - a random pick can collide
+        # with a port already in use on the runner.
+        $portProbe = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+        $portProbe.Start()
+        $port = ([System.Net.IPEndPoint]$portProbe.LocalEndpoint).Port
+        $portProbe.Stop()
         $token = 'test-token-123'
         $runner = [powershell]::Create()
         $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -140,13 +145,24 @@ Describe 'Web UI guardrails' {
             Lamfa-StartWebUi -Port $Port -MaxRequests 3 -Token $Token -NoBrowser -ConfigPath $Cfg
         }).AddArgument($repoRoot).AddArgument($port).AddArgument($token).AddArgument($script:cfg)
         $async = $runner.BeginInvoke()
-        Start-Sleep -Milliseconds 800
         try {
+            # The authenticated call doubles as the readiness probe - a fixed
+            # sleep is a race on loaded CI runners. Connection-refused retries
+            # never reach the listener, so they do not consume MaxRequests.
+            $ok = $null
+            $deadline = [DateTime]::UtcNow.AddSeconds(15)
+            while ($null -eq $ok -and [DateTime]::UtcNow -lt $deadline) {
+                try {
+                    $ok = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api" -Method Post -Body '{"operation":"version"}' `
+                        -Headers @{ 'X-Lamfa-Token' = $token; 'Content-Type' = 'application/json' } -TimeoutSec 5
+                } catch { Start-Sleep -Milliseconds 250 }
+            }
+            if ($null -eq $ok) {
+                throw "Web UI never came up on port $port. Runspace errors: $($runner.Streams.Error | Out-String)"
+            }
+            $ok.ok | Should -BeTrue
             { Invoke-RestMethod -Uri "http://127.0.0.1:$port/api" -Method Post -Body '{"operation":"version"}' -TimeoutSec 5 } |
                 Should -Throw   # 401 without token
-            $ok = Invoke-RestMethod -Uri "http://127.0.0.1:$port/api" -Method Post -Body '{"operation":"version"}' `
-                -Headers @{ 'X-Lamfa-Token' = $token; 'Content-Type' = 'application/json' } -TimeoutSec 10
-            $ok.ok | Should -BeTrue
             $html = Invoke-WebRequest -Uri "http://127.0.0.1:$port/?token=$token" -TimeoutSec 10
             $html.Content | Should -Match '<h1>Lamfa</h1>'
         } finally {
