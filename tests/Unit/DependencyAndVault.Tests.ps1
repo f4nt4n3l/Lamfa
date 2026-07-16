@@ -1,10 +1,10 @@
 # Guided dependency installation + secret vault.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Core/DependencyCheck.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/SecretVault.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/CommandRunner.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Docker/DockerRegistry.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Core/DependencyCheck.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/SecretVault.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/CommandRunner.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Docker/DockerRegistry.psm1') -Force -DisableNameChecking
     $script:repoRoot = $repoRoot
 }
 
@@ -106,7 +106,7 @@ Describe 'Runner stdin + vault-backed docker login' {
             Get = { param($Name) throw 'unused' }; Set = {}; Remove = {}; Vaults = { @() }
         }
         Mock Invoke-ExternalCommand -ModuleName DockerRegistry {
-            param($Executable, $Arguments, $WorkingDirectory, $Environment, $TimeoutSeconds, $AllowNonZeroExitCode, $CancellationToken, $StandardInput)
+            param($Executable, $Arguments, $WorkingDirectory, $Environment, $TimeoutSeconds, $CancellationToken, $StandardInput)
             ($Arguments -join ' ') | Should -Match '--password-stdin'
             ($Arguments -join ' ') | Should -Not -Match 'Reg!Pass123'
             $StandardInput | Should -Be 'Reg!Pass123'

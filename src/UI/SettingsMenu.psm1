@@ -29,7 +29,7 @@ function Show-SettingsMenu {
         Write-Host '  1. Toggle Beginner/Advanced Mode   4. Show configuration'
         Write-Host '  2. Help and glossary               5. Export registry (for another machine)'
         Write-Host '  3. Open log folder                 6. Import registry'
-        Write-Host '  7. Secrets (vault)                 8. Start web dashboard (local)'
+        Write-Host '  7. Secrets (vault)                 8. Web dashboard (experimental)'
         Write-Host '  9. Check for updates               0. Back'
         switch (Lamfa-ReadMenuKey -Breadcrumb @('Lamfa', 'Settings')) {
             '1' {
@@ -99,7 +99,19 @@ function Show-SettingsMenu {
                     }
                 }
             }
-            '8' { Lamfa-StartWebUi -ConfigPath $ConfigPath }
+            '8' {
+                $webUiEnabled = $false
+                $experimental = $config.PSObject.Properties['experimentalFeatures']
+                if ($experimental -and $experimental.Value.PSObject.Properties['webUi']) {
+                    $webUiEnabled = [bool]$experimental.Value.webUi
+                }
+                if (-not $webUiEnabled) {
+                    Lamfa-WriteMessage -Level Warning -Text 'The web dashboard is EXPERIMENTAL and disabled by default.'
+                    Lamfa-WriteMessage -Level Info -Text "Enable it by setting experimentalFeatures.webUi to true in $ConfigPath."
+                    continue
+                }
+                Lamfa-StartWebUi -ConfigPath $ConfigPath
+            }
             '9' {
                 $manifest = Import-PowerShellDataFile -Path (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Lamfa.psd1')
                 $projectUri = ''

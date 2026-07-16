@@ -14,11 +14,13 @@ jobs:
   release:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install development modules
         shell: pwsh
-        run: Install-Module -Name Pester, PSScriptAnalyzer -Force -Scope CurrentUser
+        run: |
+          Install-Module -Name Pester -RequiredVersion 6.0.0 -Force -Scope CurrentUser
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.25.0 -Force -Scope CurrentUser
 
       - name: Quality gate
         shell: pwsh
@@ -28,13 +30,22 @@ jobs:
         shell: pwsh
         run: ./tools/Build.ps1 -Package
 
+      - name: Verify package contents against the allowlist
+        shell: pwsh
+        run: |
+          $version = (Import-PowerShellDataFile Lamfa.psd1).ModuleVersion
+          ./tools/Test-ReleasePackage.ps1 -ZipPath "dist/Lamfa-$version.zip"
+
       - name: Create GitHub Release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Attach ONLY the explicit, verified files - never a glob that could
+          # pick up stray archives.
+          $version = (Import-PowerShellDataFile Lamfa.psd1).ModuleVersion
           gh release create $env:GITHUB_REF_NAME `
-            (Get-ChildItem dist/*.zip).FullName dist/checksums.txt `
+            "dist/Lamfa-$version.zip" dist/checksums.txt `
             --title "Lamfa $env:GITHUB_REF_NAME" --generate-notes
 
       - name: Publish to PowerShell Gallery

@@ -32,7 +32,7 @@ function New-GitTag {
         [Parameter()][AllowEmptyString()][string]$PushToRemote = ''
     )
     $existing = Invoke-ExternalCommand -Executable git -Arguments @('rev-parse', '-q', '--verify', "refs/tags/$Name") `
-        -WorkingDirectory $Path -AllowNonZeroExitCode
+        -WorkingDirectory $Path
     if ($existing.ExitCode -eq 0) { throw "PreconditionError: tag '$Name' already exists. Lamfa never moves or overwrites tags." }
     $result = Invoke-ExternalCommand -Executable git -Arguments @('tag', '-a', $Name, '-m', $Message, $Ref) -WorkingDirectory $Path
     if (-not $result.Succeeded) { throw "ExternalCommandError: tag creation failed. $($result.StandardError)" }

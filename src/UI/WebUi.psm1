@@ -21,7 +21,6 @@ table{border-collapse:collapse}td,th{padding:.2rem .8rem;text-align:left}
 <div class="card"><b>Status</b> <span id="branch"></span>
   <div>
     <button onclick="run('fetch')">Fetch</button>
-    <button onclick="run('pull')">Pull (safe)</button>
     <button onclick="load('diff','out')">Diff</button>
     <button onclick="load('history','out')">History</button>
     <button onclick="load('pr.view','out')">Pull request</button>

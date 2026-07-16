@@ -15,7 +15,7 @@ function Get-GitReflogList {
         [Parameter()][ValidateRange(1, 100)][int]$Limit = 10
     )
     $result = Invoke-ExternalCommand -Executable git `
-        -Arguments @('reflog', "--max-count=$Limit", '--format=%h%x1f%gd%x1f%gs') -WorkingDirectory $Path -AllowNonZeroExitCode
+        -Arguments @('reflog', "--max-count=$Limit", '--format=%h%x1f%gd%x1f%gs') -WorkingDirectory $Path
     if ($result.ExitCode -ne 0) { return @() }
     $entries = foreach ($line in ($result.StandardOutput -split "`r?`n" | Where-Object { $_ })) {
         $parts = $line -split "`u{1f}"

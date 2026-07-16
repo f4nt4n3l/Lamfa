@@ -59,7 +59,7 @@ function Remove-GitWorktree {
         [Parameter(Mandatory)][string]$WorktreePath
     )
     $result = Invoke-ExternalCommand -Executable git -Arguments @('worktree', 'remove', $WorktreePath) `
-        -WorkingDirectory $Path -AllowNonZeroExitCode
+        -WorkingDirectory $Path
     if ($result.ExitCode -ne 0) {
         throw "PreconditionError: worktree removal refused (it may contain local changes). $($result.StandardError)"
     }

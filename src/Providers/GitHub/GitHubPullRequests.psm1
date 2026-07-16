@@ -12,7 +12,7 @@ function Get-GitHubPullRequestForBranch {
     param([Parameter(Mandatory)][string]$Path)
     $result = Invoke-ExternalCommand -Executable gh `
         -Arguments @('pr', 'view', '--json', 'number,title,state,isDraft,baseRefName,headRefName,url,reviewDecision') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     if ($result.ExitCode -ne 0) { return $null }
     return ($result.StandardOutput | ConvertFrom-Json)
 }
@@ -48,7 +48,7 @@ function Get-GitHubPullRequestCheckList {
     param([Parameter(Mandatory)][string]$Path)
     $result = Invoke-ExternalCommand -Executable gh `
         -Arguments @('pr', 'checks', '--json', 'name,state,link') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     if ($result.ExitCode -ne 0 -and [string]::IsNullOrWhiteSpace($result.StandardOutput)) { return @() }
     return @($result.StandardOutput | ConvertFrom-Json)
 }
@@ -56,7 +56,7 @@ function Get-GitHubPullRequestCheckList {
 function Open-GitHubPullRequestInBrowser {
     [CmdletBinding()]
     param([Parameter(Mandatory)][string]$Path)
-    $null = Invoke-ExternalCommand -Executable gh -Arguments @('pr', 'view', '--web') -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 30
+    $null = Invoke-ExternalCommand -Executable gh -Arguments @('pr', 'view', '--web') -WorkingDirectory $Path -TimeoutSeconds 30
 }
 
 

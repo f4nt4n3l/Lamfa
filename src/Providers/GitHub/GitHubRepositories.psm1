@@ -14,7 +14,7 @@ function Test-GitHubRepositoryAccess {
     param([Parameter(Mandatory)][string]$Path)
     $result = Invoke-ExternalCommand -Executable gh `
         -Arguments @('repo', 'view', '--json', 'nameWithOwner,viewerPermission') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     if ($result.ExitCode -ne 0) {
         return [pscustomobject]@{ PSTypeName = 'Lamfa.GitHubAccess'
             Accessible = $false; Repository = $null; Permission = $null; Detail = $result.StandardError.Trim() }

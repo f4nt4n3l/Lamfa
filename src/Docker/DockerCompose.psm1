@@ -13,7 +13,7 @@ function Test-DockerComposeConfiguration {
     )
     $result = Invoke-ExternalCommand -Executable docker `
         -Arguments @('compose', '-f', $ComposeFile, 'config', '--quiet') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     return [pscustomobject]@{ PSTypeName = 'Lamfa.ComposeValidation'
         Valid = ($result.ExitCode -eq 0); Detail = $result.StandardError.Trim() }
 }

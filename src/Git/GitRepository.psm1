@@ -40,7 +40,7 @@ function Get-GitOperationState {
         if (-not [System.IO.Path]::IsPathRooted($gitDir)) { $gitDir = Join-Path $Path $gitDir }
     }
     $detached = $false
-    $headResult = Invoke-ExternalCommand -Executable git -Arguments @('symbolic-ref', '-q', 'HEAD') -WorkingDirectory $Path -AllowNonZeroExitCode
+    $headResult = Invoke-ExternalCommand -Executable git -Arguments @('symbolic-ref', '-q', 'HEAD') -WorkingDirectory $Path
     if ($headResult.ExitCode -ne 0) { $detached = $true }
 
     return [pscustomobject]@{
@@ -72,7 +72,7 @@ function Lamfa-UpdateRepositoryContext {
     $gitDir = $probe.StandardOutput.Trim()
     if (-not [System.IO.Path]::IsPathRooted($gitDir)) { $gitDir = Join-Path $Context.Path $gitDir }
 
-    $head = Invoke-ExternalCommand -Executable git -Arguments @('rev-parse', '--short', 'HEAD') -WorkingDirectory $Context.Path -AllowNonZeroExitCode
+    $head = Invoke-ExternalCommand -Executable git -Arguments @('rev-parse', '--short', 'HEAD') -WorkingDirectory $Context.Path
     $headCommit = if ($head.ExitCode -eq 0) { $head.StandardOutput.Trim() } else { $null }
 
     $status = Get-GitStatus -Path $Context.Path
@@ -107,11 +107,11 @@ function Get-GitIdentity {
     param([Parameter(Mandatory)][string]$Path)
 
     function ReadConfig([string[]]$ExtraArguments) {
-        $result = Invoke-ExternalCommand -Executable git -Arguments (@('config') + $ExtraArguments) -WorkingDirectory $Path -AllowNonZeroExitCode
+        $result = Invoke-ExternalCommand -Executable git -Arguments (@('config') + $ExtraArguments) -WorkingDirectory $Path
         if ($result.ExitCode -eq 0) { return $result.StandardOutput.Trim() }
         return $null
     }
-    $helpers = Invoke-ExternalCommand -Executable git -Arguments @('config', '--get-all', 'credential.helper') -WorkingDirectory $Path -AllowNonZeroExitCode
+    $helpers = Invoke-ExternalCommand -Executable git -Arguments @('config', '--get-all', 'credential.helper') -WorkingDirectory $Path
     $helperList = @()
     if ($helpers.ExitCode -eq 0) { $helperList = @($helpers.StandardOutput.Trim() -split "`r?`n" | Where-Object { $_ }) }
 
@@ -174,7 +174,7 @@ function Lamfa-GetEnvironmentReport {
     $hasSubmodules = Test-Path -LiteralPath (Join-Path $Path '.gitmodules')
     $uninitializedSubmodules = @()
     if ($hasSubmodules) {
-        $status = Invoke-ExternalCommand -Executable git -Arguments @('submodule', 'status') -WorkingDirectory $Path -AllowNonZeroExitCode
+        $status = Invoke-ExternalCommand -Executable git -Arguments @('submodule', 'status') -WorkingDirectory $Path
         # a leading '-' marks a submodule that was never initialized
         $uninitializedSubmodules = @($status.StandardOutput -split "`r?`n" | Where-Object { $_ -match '^-' } |
             ForEach-Object { ($_ -split '\s+')[1] })

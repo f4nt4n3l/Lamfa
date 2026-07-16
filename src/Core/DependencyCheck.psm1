@@ -91,7 +91,7 @@ function Lamfa-InstallDependency {
         }
         $result = Invoke-ExternalCommand -Executable winget `
             -Arguments @('install', '--id', $plan.Target, '--source', 'winget', '--accept-source-agreements', '--accept-package-agreements') `
-            -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 1800 -AllowNonZeroExitCode
+            -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 1800
         # winget exit 0 = installed; specific non-zero codes mean already-installed - re-detection decides.
     } else {
         $result = Lamfa-InvokeModuleInstall -ModuleName $plan.Target

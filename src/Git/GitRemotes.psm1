@@ -93,7 +93,7 @@ function Get-GitPushPreview {
     $commitCount = 0
     if (-not $willPublish -and $null -ne $status.Ahead) { $commitCount = $status.Ahead }
     elseif ($willPublish -and $status.Branch) {
-        $count = Invoke-ExternalCommand -Executable git -Arguments @('rev-list', '--count', 'HEAD') -WorkingDirectory $Path -AllowNonZeroExitCode
+        $count = Invoke-ExternalCommand -Executable git -Arguments @('rev-list', '--count', 'HEAD') -WorkingDirectory $Path
         if ($count.ExitCode -eq 0) { $commitCount = [int]$count.StandardOutput.Trim() }
     }
     return [pscustomobject]@{

@@ -2,11 +2,11 @@
 # mocked - no network, no CLIs, no credentials.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Providers/GitLab/GitLabAdapter.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Providers/Gitea/GiteaAdapter.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Providers/Bitbucket/BitbucketAdapter.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Providers/ProviderAdapter.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Providers/GitLab/GitLabAdapter.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Providers/Gitea/GiteaAdapter.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Providers/Bitbucket/BitbucketAdapter.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Providers/ProviderAdapter.psm1') -Force -DisableNameChecking
 }
 
 Describe 'Adapter registry + resolution' {

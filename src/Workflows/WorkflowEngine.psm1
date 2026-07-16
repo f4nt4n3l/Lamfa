@@ -67,7 +67,7 @@ function Lamfa-InvokeWorkflowCommand {
         command  = (Get-SanitizedCommandText -Executable $command.Executable -Arguments $command.Arguments)
     }
     return Invoke-ExternalCommand -Executable $command.Executable -Arguments $command.Arguments `
-        -WorkingDirectory $RepositoryPath -TimeoutSeconds $TimeoutSeconds -AllowNonZeroExitCode
+        -WorkingDirectory $RepositoryPath -TimeoutSeconds $TimeoutSeconds
 }
 
 function Lamfa-GetCommentAudit {

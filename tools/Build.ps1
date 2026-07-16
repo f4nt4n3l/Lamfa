@@ -17,6 +17,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Path $PSScriptRoot -Parent
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $repoRoot 'dist' }
 
+# Every build starts from an empty output folder - stale artifacts from
+# earlier builds (or earlier project names) must never ship again.
+if (Test-Path -Path $OutputDirectory) { Remove-Item -Path $OutputDirectory -Recurse -Force }
+$null = New-Item -ItemType Directory -Path $OutputDirectory
+
 $manifest = Import-PowerShellDataFile -Path (Join-Path $repoRoot 'Lamfa.psd1')
 $version = $manifest.ModuleVersion
 
@@ -203,8 +208,12 @@ if ($Package) {
     foreach ($doc in @('USER_GUIDE.md', 'RECOVERY_GUIDE.md', 'ADMIN_GUIDE.md', 'PROFILE_SCHEMA.md')) {
         Copy-Item -Path (Join-Path $repoRoot "docs/$doc") -Destination (Join-Path $stage 'docs')
     }
-    Copy-Item -Path (Join-Path $repoRoot 'config/*.json') -Destination (Join-Path $stage 'config')
-    Copy-Item -Path (Join-Path $repoRoot 'profiles/*.json') -Destination (Join-Path $stage 'profiles')
+    # Explicit file list, mirroring config/release-allowlist.json - a glob
+    # would silently ship anything new that lands in these folders.
+    foreach ($configFile in @('default-config.json', 'dependency-policy.json')) {
+        Copy-Item -Path (Join-Path $repoRoot "config/$configFile") -Destination (Join-Path $stage 'config')
+    }
+    Copy-Item -Path (Join-Path $repoRoot 'profiles/default.json') -Destination (Join-Path $stage 'profiles')
     $zipPath = Join-Path $OutputDirectory "Lamfa-$version.zip"
     if (Test-Path $zipPath) { Remove-Item -Path $zipPath -Force }
     Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zipPath

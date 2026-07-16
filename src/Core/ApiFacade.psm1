@@ -24,6 +24,12 @@ function Lamfa-GetApiContext {
 
 $script:ApiOperations = [ordered]@{
     'version'        = { param($p, $cfg)
+        # In the single-file distribution everything shares one scope, so the
+        # root module's Lamfa-GetVersion is available; the manifest file is not
+        # shipped there. Modular layout falls back to reading the manifest.
+        if (Get-Command -Name Lamfa-GetVersion -ErrorAction SilentlyContinue) {
+            return @{ version = [string](Lamfa-GetVersion) }
+        }
         $manifest = Import-PowerShellDataFile -Path (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'Lamfa.psd1')
         @{ version = [string]$manifest.ModuleVersion } }
     'doctor'         = { param($p, $cfg)
@@ -58,10 +64,6 @@ $script:ApiOperations = [ordered]@{
         $context = Lamfa-GetApiContext -ConfigPath $cfg
         $result = Invoke-GitFetch -Path $context.Path
         @{ succeeded = $result.Succeeded; detail = $result.StandardError.Trim() } }
-    'pull'           = { param($p, $cfg)
-        $context = Lamfa-GetApiContext -ConfigPath $cfg
-        $pull = Invoke-GitPull -Path $context.Path
-        @{ outcome = $pull.Outcome; detail = $pull.Detail } }
     'push.preview'   = { param($p, $cfg)
         $context = Lamfa-GetApiContext -ConfigPath $cfg
         $preview = Get-GitPushPreview -Path $context.Path

@@ -1,11 +1,11 @@
 # Profiles, trust, detection, workflow engine, release tools, release state.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Workflows/ProfileLoader.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Workflows/ProjectDetection.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Workflows/WorkflowEngine.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Workflows/ReleaseTools.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/State.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Workflows/ProfileLoader.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Workflows/ProjectDetection.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Workflows/WorkflowEngine.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Workflows/ReleaseTools.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/State.psm1') -Force -DisableNameChecking
     . (Join-Path $repoRoot 'tools/New-TestRepository.ps1')
     $script:repoRoot = $repoRoot
     $script:sandbox = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa-wf-" + [guid]::NewGuid())

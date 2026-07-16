@@ -2,10 +2,10 @@
 # + hardened redaction cases.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Workflows/ProfileLoader.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Workflows/ReleaseOrchestrator.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/Configuration.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/Logging.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Workflows/ProfileLoader.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Workflows/ReleaseOrchestrator.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/Configuration.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/Logging.psm1') -Force -DisableNameChecking
     $script:sandbox = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa-rel-" + [guid]::NewGuid())
     $null = New-Item -ItemType Directory -Path $script:sandbox
     $script:trustStore = Join-Path $script:sandbox 'trust.json'

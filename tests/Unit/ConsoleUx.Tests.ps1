@@ -1,15 +1,15 @@
 # Console UX + safety quick wins.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/UI/ConsoleRenderer.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Git/GitRemotes.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Git/GitBranches.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Git/GitCommits.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Git/GitRepository.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Workflows/WorkflowEngine.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryRegistry.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Git/GitRepository.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/UI/ConsoleRenderer.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Git/GitRemotes.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Git/GitBranches.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Git/GitCommits.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Git/GitRepository.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Workflows/WorkflowEngine.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Repositories/RepositoryRegistry.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Git/GitRepository.psm1') -Force -DisableNameChecking
     . (Join-Path $repoRoot 'tools/New-TestRepository.ps1')
     $script:sandbox = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa-p13-" + [guid]::NewGuid())
     $null = New-Item -ItemType Directory -Path $script:sandbox
@@ -63,18 +63,36 @@ Describe 'Protected-branch push policy' {
 }
 
 Describe 'Auto-fetch freshness' {
-    It 'fetches once, stamps lastFetchUtc, then skips inside the window' {
+    It 'fetches once, stamps attempt + success separately, then skips inside the window' {
         $fx = New-TestRepository -State WithRemote
         try {
             $cfg = Join-Path $fx.Root 'config.json'
             $registration = Lamfa-AddRepository -Path $fx.Path -Name 'fresh' -ConfigPath $cfg
             $context = Lamfa-SetActiveRepository -Id $registration.id -ConfigPath $cfg
-            Import-Module (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'src/Git/GitRepository.psm1') -Force
+            Import-Module (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'src/Git/GitRepository.psm1') -Force -DisableNameChecking
             $context = Lamfa-UpdateRepositoryContext -Context $context
             (Lamfa-UpdateFetchFreshness -Context $context -ConfigPath $cfg) | Should -BeTrue
             $saved = (Lamfa-GetRepositoryList -ConfigPath $cfg)[0]
-            $saved.lastFetchUtc | Should -Not -BeNullOrEmpty
+            $saved.lastFetchAttemptUtc | Should -Not -BeNullOrEmpty
+            $saved.lastSuccessfulFetchUtc | Should -Be $saved.lastFetchAttemptUtc
             (Lamfa-UpdateFetchFreshness -Context $context -ConfigPath $cfg) | Should -BeFalse
+        } finally { Remove-Item $fx.Root -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+    It 'a failed fetch stamps the attempt and the error but never the success' {
+        $fx = New-TestRepository -State WithRemote
+        try {
+            $cfg = Join-Path $fx.Root 'config.json'
+            $registration = Lamfa-AddRepository -Path $fx.Path -Name 'broken' -ConfigPath $cfg
+            $context = Lamfa-SetActiveRepository -Id $registration.id -ConfigPath $cfg
+            Import-Module (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'src/Git/GitRepository.psm1') -Force -DisableNameChecking
+            $context = Lamfa-UpdateRepositoryContext -Context $context
+            # Point the remote at a path that does not exist - fetch must fail.
+            $null = & git -C $fx.Path remote set-url origin (Join-Path $fx.Root 'no-such-remote')
+            (Lamfa-UpdateFetchFreshness -Context $context -ConfigPath $cfg) | Should -BeFalse
+            $saved = (Lamfa-GetRepositoryList -ConfigPath $cfg)[0]
+            $saved.lastFetchAttemptUtc | Should -Not -BeNullOrEmpty
+            $saved.lastSuccessfulFetchUtc | Should -BeNullOrEmpty
+            $saved.lastFetchError | Should -Not -BeNullOrEmpty
         } finally { Remove-Item $fx.Root -Recurse -Force -ErrorAction SilentlyContinue }
     }
     It 'does nothing without remotes' {
@@ -154,7 +172,7 @@ Describe 'Registry export/import' {
 
 Describe 'Main menu items' {
     It 'uses single-character hotkeys only (single-key navigation safe)' {
-        Import-Module (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'src/UI/MainMenu.psm1') -Force
+        Import-Module (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'src/UI/MainMenu.psm1') -Force -DisableNameChecking
         $items = Lamfa-GetMainMenuItemList
         @($items).Count | Should -Be 11
         foreach ($item in $items) {

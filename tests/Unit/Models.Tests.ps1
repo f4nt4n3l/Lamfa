@@ -1,10 +1,10 @@
 # Model contract tests.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Models/CommandResult.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Models/DependencyStatus.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Models/OperationDefinition.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Models/CommandResult.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Models/DependencyStatus.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Models/OperationDefinition.psm1') -Force -DisableNameChecking
 }
 
 Describe 'CommandResult' {

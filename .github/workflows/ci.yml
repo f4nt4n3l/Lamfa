@@ -13,11 +13,13 @@ jobs:
   quality:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install development modules
         shell: pwsh
-        run: Install-Module -Name Pester, PSScriptAnalyzer -Force -Scope CurrentUser
+        run: |
+          Install-Module -Name Pester -RequiredVersion 6.0.0 -Force -Scope CurrentUser
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.25.0 -Force -Scope CurrentUser
 
       - name: Quality checks (PSScriptAnalyzer + Pester)
         shell: pwsh
@@ -46,8 +48,14 @@ jobs:
         shell: pwsh
         run: ./dist/Lamfa.ps1 -SelfTest
 
+      - name: Verify package contents against the allowlist
+        shell: pwsh
+        run: |
+          $zip = Get-Item dist/Lamfa-*.zip
+          ./tools/Test-ReleasePackage.ps1 -ZipPath $zip.FullName
+
       - name: Upload package artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Lamfa-dist
           path: dist/

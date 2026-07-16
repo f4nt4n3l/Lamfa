@@ -1,8 +1,8 @@
 # Precondition engine tests.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/Preconditions.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Models/RepositoryContext.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/Preconditions.psm1') -Force -DisableNameChecking
     $script:existingDir = Join-Path ([System.IO.Path]::GetTempPath()) ("lamfa-pre-" + [guid]::NewGuid())
     $null = New-Item -ItemType Directory -Path $script:existingDir
 }

@@ -10,7 +10,7 @@ function Get-GiteaAuthStatus {
     [OutputType([pscustomobject])]
     param()
     $result = Invoke-ExternalCommand -Executable tea -Arguments @('login', 'list', '--output', 'json') `
-        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 60
     $accounts = @()
     if ($result.ExitCode -eq 0 -and $result.StandardOutput.Trim()) {
         try {
@@ -38,7 +38,7 @@ function Get-GiteaPullRequestForBranch {
     )
     $result = Invoke-ExternalCommand -Executable tea `
         -Arguments @('pr', 'list', '--output', 'json', '--fields', 'index,title,state,base,head,url') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     if ($result.ExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($result.StandardOutput)) { return $null }
     $match = @($result.StandardOutput | ConvertFrom-Json) |
         Where-Object { $_.head -eq $Branch -and ([string]$_.state) -ieq 'open' } | Select-Object -First 1

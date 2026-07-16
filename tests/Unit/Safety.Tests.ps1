@@ -1,8 +1,8 @@
 # Safety and confirmation policy tests - proves the section 13 matrix.
 BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    Import-Module (Join-Path $repoRoot 'src/Models/OperationDefinition.psm1') -Force
-    Import-Module (Join-Path $repoRoot 'src/Core/Safety.psm1') -Force
+    Import-Module (Join-Path $repoRoot 'src/Models/OperationDefinition.psm1') -Force -DisableNameChecking
+    Import-Module (Join-Path $repoRoot 'src/Core/Safety.psm1') -Force -DisableNameChecking
 
     function New-TestOperation {
         param([string]$Risk, [string]$Mode = 'YesNo', [bool]$ConfirmationRequired = $true)

@@ -47,7 +47,7 @@ function Find-GitCommit {
     $arguments = @('log', "--max-count=$Limit", '--date=iso-strict', '--format=%h%x1f%an%x1f%ad%x1f%s', '--branches')
     if ($Message) { $arguments += @('--grep', $Message, '-i') }
     if ($Code) { $arguments += @('-S', $Code) }
-    $result = Invoke-ExternalCommand -Executable git -Arguments $arguments -WorkingDirectory $Path -AllowNonZeroExitCode
+    $result = Invoke-ExternalCommand -Executable git -Arguments $arguments -WorkingDirectory $Path
     if ($result.ExitCode -ne 0) { return @() }
     $commits = foreach ($line in ($result.StandardOutput -split "`r?`n" | Where-Object { $_ })) {
         $parts = $line -split "`u{1f}"

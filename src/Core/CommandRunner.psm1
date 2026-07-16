@@ -23,7 +23,6 @@ function Invoke-ExternalCommand {
         [Parameter(Mandatory)][string]$WorkingDirectory,
         [Parameter()][hashtable]$Environment = @{},
         [Parameter()][ValidateRange(0, 86400)][int]$TimeoutSeconds = 0,
-        [Parameter()][switch]$AllowNonZeroExitCode,
         [Parameter()][AllowNull()][System.Threading.CancellationToken]$CancellationToken = [System.Threading.CancellationToken]::None,
         # Text piped to the child's stdin (e.g. docker login --password-stdin).
         # NEVER logged: stdin content bypasses SanitizedCommand by design.
@@ -106,7 +105,7 @@ function Invoke-ExternalCommand {
         $exitCode = if ($process.HasExited) { $process.ExitCode } else { $null }
 
         $succeeded = (-not $wasTimedOut) -and (-not $wasCancelled) -and ($null -ne $exitCode) -and
-            (($exitCode -eq 0) -or $AllowNonZeroExitCode.IsPresent)
+            ($exitCode -eq 0)
         if ($wasTimedOut) { $standardError = "Command timed out after $TimeoutSeconds second(s). $standardError".Trim() }
         if ($wasCancelled) { $standardError = "Command was cancelled by the user. $standardError".Trim() }
 

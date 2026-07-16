@@ -41,6 +41,10 @@ function Lamfa-GetDefaultConfiguration {
             showCommandsBeforeExecution = $true
             pauseAfterErrors            = $true
         }
+        # Features that have not been through real-world acceptance yet.
+        experimentalFeatures = [pscustomobject]@{
+            webUi = $false
+        }
     }
 }
 

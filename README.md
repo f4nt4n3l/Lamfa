@@ -55,8 +55,8 @@ lamfa pull      lamfa branch    lamfa repos     lamfa doctor
 
 ## Safety model
 
-1. Preconditions gate every operation - a failure blocks the action and shows
-   the reason and the next step.
+1. Failed safety checks block the action and show the reason and the next
+   step.
 2. Remote-changing actions show the exact target (remote URL, branch, image
    reference) before confirmation.
 3. Destructive actions require retyping the target name; repository deletion

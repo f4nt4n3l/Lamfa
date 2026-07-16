@@ -10,7 +10,7 @@ function Get-GitLabAuthStatus {
     [OutputType([pscustomobject])]
     param()
     $result = Invoke-ExternalCommand -Executable glab -Arguments @('auth', 'status') `
-        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory ([System.IO.Path]::GetTempPath()) -TimeoutSeconds 60
     $text = $result.StandardOutput + "`n" + $result.StandardError
     $accounts = [System.Collections.Generic.List[object]]::new()
     foreach ($line in ($text -split "`r?`n")) {
@@ -33,7 +33,7 @@ function Get-GitLabMergeRequestForBranch {
     [OutputType([pscustomobject])]
     param([Parameter(Mandatory)][string]$Path)
     $result = Invoke-ExternalCommand -Executable glab -Arguments @('mr', 'view', '--output', 'json') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     if ($result.ExitCode -ne 0) { return $null }
     $json = $result.StandardOutput | ConvertFrom-Json
     return [pscustomobject]@{
@@ -75,7 +75,7 @@ function Get-GitLabPipelineStatus {
     [OutputType([object[]])]
     param([Parameter(Mandatory)][string]$Path)
     $result = Invoke-ExternalCommand -Executable glab -Arguments @('ci', 'list', '--output', 'json', '--per-page', '5') `
-        -WorkingDirectory $Path -AllowNonZeroExitCode -TimeoutSeconds 60
+        -WorkingDirectory $Path -TimeoutSeconds 60
     if ($result.ExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($result.StandardOutput)) { return @() }
     return @($result.StandardOutput | ConvertFrom-Json | ForEach-Object {
         [pscustomobject]@{ Name = "pipeline #$($_.id) ($($_.ref))"; State = ([string]$_.status).ToUpperInvariant(); Url = $_.web_url }
