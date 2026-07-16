@@ -34,6 +34,9 @@ lamfa
 
 # Or portable: download Lamfa-<version>.zip from Releases, then
 pwsh -File Lamfa.ps1
+
+# Optional: make "lamfa" available in every terminal (user PATH shim)
+pwsh -File tools/Install-Lamfa.ps1
 ```
 
 Requirements: PowerShell 7 (`winget install Microsoft.PowerShell`) + Git.

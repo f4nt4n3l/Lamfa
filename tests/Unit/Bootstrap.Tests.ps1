@@ -59,7 +59,7 @@ Describe 'Lamfa entry script' {
 Describe 'Build script' {
     BeforeAll {
         $script:DistFile = Join-Path $script:RepoRoot 'dist/Lamfa.ps1'
-        & (Join-Path $script:RepoRoot 'Build.ps1') | Out-Null
+        & (Join-Path $script:RepoRoot 'tools/Build.ps1') | Out-Null
     }
 
     It 'produces dist/Lamfa.ps1' {
