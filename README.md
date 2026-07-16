@@ -78,4 +78,4 @@ Full details: [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE) - (c) 2026 Fantanel Lamaj.
+[MIT](LICENSE) - (c) 2026 Lamfa.

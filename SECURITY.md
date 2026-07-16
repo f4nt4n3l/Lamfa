@@ -17,7 +17,7 @@ security rules:
 
 ## Reporting a vulnerability
 
-Please do NOT open a public issue. Use GitHub's private vulnerability
+Please do not open a public issue. Use GitHub's private vulnerability
 reporting (Security -> Report a vulnerability) on this repository. You will
 get an acknowledgment within 7 days. Fixes ship as patch releases with credit
 to the reporter (unless you prefer anonymity).
