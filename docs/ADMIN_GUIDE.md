@@ -27,7 +27,7 @@ Deleting the folder resets Lamfa to first-run; no repositories are touched.
 
 ## Security model (short)
 
-- No secrets are ever stored or logged: Git/gh/Docker own credentials.
+- Secrets are not stored or logged: Git/gh/Docker own the credentials.
 - All external commands run through one runner with argument arrays - no shell
   string assembly.
 - Repository-owned profiles are data, validated, and trust-gated by content

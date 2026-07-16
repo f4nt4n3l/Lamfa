@@ -1,17 +1,17 @@
 # Lamfa Profile Schema (schemaVersion 1)
 
 A profile tells Lamfa how to work with a specific repository: its branches,
-its build/test/run commands, its Docker targets. Profiles are pure DATA - no
+its build/test/run commands, its Docker targets. Profiles are data only - no
 scripts, no expressions. Two kinds:
 
 - **Repository-owned:** `.lamfa.json` in the repository root. Runs only
-  after you review and TRUST it; any content change requires re-trusting.
+  after you review and trust it; any content change requires re-trusting.
 - **Built-in:** shipped under `profiles/`, matched by registered repository
   name (lowercased), e.g. `profiles/myapp.json`. `profiles/default.json`
   is the fallback.
 
-An INVALID profile never disables generic Git features - Lamfa falls back to
-the default profile and reports the validation errors.
+An invalid profile does not disable generic Git features - Lamfa falls back
+to the default profile and reports the validation errors.
 
 ## Shape
 
