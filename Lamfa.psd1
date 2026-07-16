@@ -2,9 +2,9 @@
     RootModule        = 'Lamfa.psm1'
     ModuleVersion     = '0.1.0'
     GUID              = '89f823aa-cfef-4ae5-b04a-50598dccf9cf'
-    Author            = 'Fantanel Lamaj'
-    CompanyName       = 'Fantanel Lamaj'
-    Copyright         = '(c) 2026 Fantanel Lamaj. MIT License.'
+    Author            = 'Lamfa'
+    CompanyName       = 'Lamfa'
+    Copyright         = '(c) 2026 Lamfa. MIT License.'
     Description       = 'Console tool for managing Git repositories, GitHub/GitLab/Gitea/Bitbucket, and Docker.'
 
     # Floor is 7.0 so the module can load on any PowerShell 7 host; the documented
