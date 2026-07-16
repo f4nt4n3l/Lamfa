@@ -130,7 +130,12 @@ Describe 'API facade' {
 
 Describe 'Web UI guardrails' {
     It 'serves the dashboard and the API only with the session token' {
-        $port = Get-Random -Minimum 49000 -Maximum 59000
+        # Ask the OS for a genuinely free port - a random pick can collide
+        # with a port already in use on the runner.
+        $portProbe = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+        $portProbe.Start()
+        $port = ([System.Net.IPEndPoint]$portProbe.LocalEndpoint).Port
+        $portProbe.Stop()
         $token = 'test-token-123'
         $runner = [powershell]::Create()
         $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent

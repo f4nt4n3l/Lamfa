@@ -105,8 +105,10 @@ function Lamfa-StartWebUi {
             if ($MaxRequests -gt 0 -and $served -ge $MaxRequests) { break }
         }
     } finally {
-        $listener.Stop()
-        $listener.Close()
+        # Start() can fail (port in use) leaving the listener already
+        # disposed - cleanup is best-effort.
+        try { $listener.Stop() } catch { Write-Verbose "Listener stop: $($_.Exception.Message)" }
+        try { $listener.Close() } catch { Write-Verbose "Listener close: $($_.Exception.Message)" }
     }
 }
 
