@@ -16,7 +16,7 @@ folder, scan a folder, or clone from a URL.
 
 ## The dashboard
 
-The header always shows: your environment, the ACTIVE repository (name, path,
+The header always shows: your environment, the active repository (name, path,
 branch, upstream, clean/dirty, ahead/behind), and one recommended next action.
 If the header says the wrong repository is active, fix that first - every
 action targets the active repository.
@@ -56,7 +56,7 @@ menu - the screen is then redrawn instead of scrolling.
 1. Open Lamfa -> check the dashboard is on the right repository and branch.
 2. Menu 3: create a branch for your work.
 3. Edit files in your editor as usual.
-4. Menu 4: commit wizard - select ONLY the files that belong together, give a
+4. Menu 4: commit wizard - select only the files that belong together, give a
    short imperative title.
 5. Push (the preview shows exactly where the commits go).
 6. Menu 5: create the pull request with an explicit base branch.
@@ -64,7 +64,7 @@ menu - the screen is then redrawn instead of scrolling.
 ## When something looks broken
 
 Open menu 9. Lamfa detects merges/rebases in progress, detached HEAD,
-diverged branches, and missing upstreams, and lists steps that PRESERVE your
+diverged branches, and missing upstreams, and lists steps that preserve your
 work. Nothing there deletes anything.
 
 ## Where things live
