@@ -4,7 +4,7 @@ BeforeAll {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
     $script:sources = @(Get-ChildItem -Path (Join-Path $repoRoot 'src') -Recurse -Include '*.psm1') +
         @(Get-Item (Join-Path $repoRoot 'Lamfa.psm1'), (Get-Item (Join-Path $repoRoot 'Lamfa.ps1')),
-          (Get-Item (Join-Path $repoRoot 'Build.ps1')))
+          (Get-Item (Join-Path $repoRoot 'tools/Build.ps1')))
 }
 
 Describe 'Security guards' {

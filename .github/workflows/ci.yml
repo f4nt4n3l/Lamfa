@@ -29,7 +29,7 @@ jobs:
 
       - name: Build single-file script and portable ZIP
         shell: pwsh
-        run: ./Build.ps1 -Package
+        run: ./tools/Build.ps1 -Package
 
       - name: Verify checksums
         shell: pwsh

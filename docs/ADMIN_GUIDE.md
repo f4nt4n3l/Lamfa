@@ -49,7 +49,7 @@ name. Repository-owned `.lamfa.json` takes precedence after user trust.
 Install-Module Pester, PSScriptAnalyzer -Scope CurrentUser
 
 pwsh -File tools/Invoke-QualityChecks.ps1   # PSSA + full Pester suite
-pwsh -File Build.ps1                        # regenerate dist/ + checksums
+pwsh -File tools/Build.ps1                  # regenerate dist/ + checksums
 ```
 
 CI (`.github/workflows/ci.yml`) runs the same gate plus both self-tests and

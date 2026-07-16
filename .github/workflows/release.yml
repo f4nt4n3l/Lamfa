@@ -26,7 +26,7 @@ jobs:
 
       - name: Build package
         shell: pwsh
-        run: ./Build.ps1 -Package
+        run: ./tools/Build.ps1 -Package
 
       - name: Create GitHub Release
         shell: pwsh
