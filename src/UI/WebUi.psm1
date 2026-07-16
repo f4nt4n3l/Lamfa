@@ -94,6 +94,10 @@ function Lamfa-StartWebUi {
                     $response.ContentType = 'text/html; charset=utf-8'
                     $bytes = [System.Text.Encoding]::UTF8.GetBytes($script:DashboardHtml)
                 }
+                # Explicit length lets the client finish reading before the
+                # listener shuts down - without it the last response can be
+                # cut off as a connection reset.
+                $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             } finally {
                 $response.Close()
